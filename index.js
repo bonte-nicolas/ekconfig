@@ -4,15 +4,16 @@ const _ = require('lodash')
 const yaml = require('js-yaml')
 const fs = require('fs')
 
-const log = require('./logger')('kic:config')
-
 const internals = {}
+
+const filename = require.main.filename;
+const filepath = filename.slice(0, filename.lastIndexOf("/"));
 
 internals.config = {}
 
-internals.basePath = `${__dirname}/../../conf/base.yaml`
-internals.envMappingPath = `${__dirname}/../../conf/env_mapping.yaml`
-internals.overridesPath = process.env.NODE_ENV ? `${__dirname}/../../conf/${process.env.NODE_ENV}.yaml` : null
+internals.basePath = process.env.NODE_CONFIG_DIR ? `${process.env.NODE_CONFIG_DIR}/base.yaml` : `./conf/base.yaml`
+internals.envMappingPath = process.env.NODE_CONFIG_DIR ? `${process.env.NODE_CONFIG_DIR}/env_mapping.yaml` : `./conf/env_mapping.yaml`
+internals.overridesPath = process.env.NODE_ENV ? process.env.NODE_CONFIG_DIR ? `${process.env.NODE_CONFIG_DIR}/${process.env.NODE_ENV}.yaml` : `./conf/${process.env.NODE_ENV}.yaml` : null
 
 /**
  * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey")...
@@ -53,11 +54,28 @@ exports.dump = () => internals.cfg
  * @param {string} path
  * @return {Object}
  */
-internals.readYaml = path => {
-    const content = fs.readFileSync(path, { encoding: 'utf8' })
-    const result = yaml.safeLoad(content)
+internals.read = path => {
+    const content = fs.readFileSync(`${filepath}/${path}`, { encoding: 'utf8' })
+    let result = yaml.safeLoad(content)
+    _.forOwn(result, (value, key) => {
+        if(value.type === 'number'){
+            if(!isNaN(parseInt(value.value))){
+                result[key] = { value: parseInt(value.value) }
+            }
+            else{
+                throw new Error(`'${value.value}' is NaN`)
+            }
+        }
+        else if(value.type === 'string'){
+            result[key] = { value: (value.value).toString() }
+        }
+        else{
+            throw new Error('invalid type')
+        }
+    })
     return result
 }
+
 
 /**
  * Read env variables override file and set config from env vars
@@ -67,12 +85,12 @@ internals.readEnvOverrides = () => {
     const result = {}
 
     try {
-        const content = internals.readYaml(internals.envMappingPath)
+        const content = internals.read(internals.envMappingPath)
         _.forOwn(content, (value, key) => {
-            _.set(result, value, process.env[key])
+            _.set(result, key, value)
         })
     } catch (e) {
-        log.info('No environment vars mapping')
+        console.info('No environment vars mapping')
     }
 
     return result
@@ -94,14 +112,13 @@ internals.customizer = (objValue, srcValue) => {
  * Read base file, override it with env file and finally override it with env vars
  */
 internals.load = () => {
-    const base = internals.readYaml(internals.basePath)
+    const base = internals.read(internals.basePath)
     let env = {}
-
     if (internals.overridesPath) {
         try {
-            env = internals.readYaml(internals.overridesPath)
+            env = internals.read(internals.overridesPath)
         } catch (e) {
-            log.info('No environment config file found')
+            console.info('No environment config file found')
         }
     }
 
