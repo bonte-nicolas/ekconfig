@@ -9,13 +9,13 @@ A lightweight configuration module powered by yaml.
 Using yarn
 
 ```
-yarn add ekconfig
+yarn add @ekino/config
 ```
 
 Or npm
 
 ```
-npm install ekconfig
+npm install @ekino/config
 ```
 
 ## Usage
@@ -31,5 +31,5 @@ This module assumes all your configuration is defined in a single directory:
 
 > Be warned that this module uses synchronous file reads in order to be easily required.
 
-[npm-image]: https://img.shields.io/npm/v/ekconfig.svg?style=flat-square
-[npm-url]: https://www.npmjs.com/package/ekconfig
+[npm-image]: https://img.shields.io/npm/v/@ekino/config.svg?style=flat-square
+[npm-url]: https://www.npmjs.com/package/@ekino/config
