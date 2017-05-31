@@ -1,0 +1,18 @@
+{
+  "name": "ekconfig",
+  "version": "0.1.0",
+  "description": "lightweight configuration module powered by yaml",
+  "main": "index.js",
+  "repository": "git@github.com:ekino/node-ekconfig.git",
+  "author": "ekino OSS <oss@ekino.com>",
+  "license": "MIT",
+  "tags": [
+    "config",
+    "yaml",
+    "lightweight"
+  ],
+  "peerDependencies": {
+    "js-yaml": "^3.8.4",
+    "lodash": "^4.17.4"
+  }
+}
