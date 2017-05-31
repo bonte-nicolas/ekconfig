@@ -11,8 +11,8 @@
     "yaml",
     "lightweight"
   ],
-  "peerDependencies": {
-    "js-yaml": "^3.8.4",
-    "lodash": "^4.17.4"
+  "dependencies": {
+    "js-yaml": "3.x.x",
+    "lodash": "4.x.x"
   }
 }
